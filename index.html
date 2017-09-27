@@ -24,9 +24,11 @@
         </button>
 
         <form class="form" v-if="gmailFormShow">
-          <button class="btn btn-primary" @click="handleLoginClick" v-if="!isSignedIn">
+          <button class="btn btn-primary" @click.prevent="handleLoginClick" v-if="!isSignedIn">
             按這裡登入 Gmail
           </button>
+
+          <button class="btn btn-danger" @click.prevent="handleLogoutClick" v-if="isSignedIn">登出</button>
 
           <div class="form-group">
             <label >收件人</label>
@@ -37,7 +39,7 @@
             <textarea cols="30" rows="10" class="form-control" v-model="gmailMessage"></textarea>
           </div>
 
-          <button class="btn btn-warning" @click="sendGmail">寄出</button>
+          <button class="btn btn-warning" @click.prevent="sendGmail">寄出</button>
         </form>
       </div>
     </div>
@@ -60,14 +62,19 @@
             gapi.auth2.getAuthInstance().signIn();
           },
 
+          handleLogoutClick() {
+            gapi.auth2.getAuthInstance().signOut()
+          },
+
           updateSigninStatus(status) {
+            console.log('update signin status = ', status)
             this.isSignedIn = status
           },
 
           sendGmail() {
             var email = ''
             email += 'To: ' + this.gmailTo + "\r\n"
-            email += 'Subject: Test Subject' + "\r\n"
+            email += 'Subject: Project Kemono Friends' + "\r\n"
             email += "\r\n" + this.gmailMessage
 
             gapi.client.gmail.users.messages.send({
