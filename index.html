@@ -19,6 +19,7 @@
     }
 
     .letter {
+      white-space: pre-line;
       border-radius: 5px;
       margin: 1em 0;
       background-image: url(./images/linedpaper.png);
@@ -56,8 +57,7 @@
             <input type="text" v-model="gmailTo">
           </div>
 
-          <div class="letter markdown-body" v-html="mailContent">
-          </div>
+          <div class="letter markdown-body">{{ mailContent }}</div>
 
           <button class="btn btn-warning" @click.prevent="sendGmail">寄出</button>
         </form>
@@ -106,7 +106,7 @@
         },
         en: {
           hello: 'Hello World',
-          mail: '<h4>Welcome to Japari Park</h4> <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit ut tenetur accusamus. Dolorum repellat officia porro, deleniti sunt odio esse itaque reiciendis vitae. Ex dolores ipsa repudiandae veniam, temporibus quod. Ex doloribus inventore tenetur doloremque eveniet eius fugiat, placeat nam praesentium suscipit delectus hic error vero ab laboriosam aut officiis temporibus est optio exercitationem non! Laborum dolorum temporibus magni quo? Rerum dolorem facere vitae ullam eum, porro quam odit asperiores hic! Vel optio iusto non illo sint. Debitis ex molestiae dignissimos, quibusdam veritatis at architecto quam dolore, officiis quod nulla. Eos ipsum et dolore accusantium. Est harum fugit expedita perspiciatis dolores deserunt optio blanditiis, pariatur ea obcaecati animi voluptate, quibusdam eos nobis ipsum assumenda voluptatum doloribus sunt. Aliquam, iste voluptatum? Similique, eligendi eius. Maxime consectetur quae quam animi deleniti, voluptates nemo reprehenderit. Odio, error! Nulla temporibus quidem nostrum nesciunt similique sunt ducimus voluptas sit aspernatur, explicabo facilis tempore ad. Facere. </p> {{ author }}'
+          mail: 'Welcome to Japari Park\n\nLorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit ut tenetur accusamus. Dolorum repellat officia porro, deleniti sunt odio esse itaque reiciendis vitae. Ex dolores ipsa repudiandae veniam, temporibus quod. Ex doloribus inventore tenetur doloremque eveniet eius fugiat, placeat nam praesentium suscipit delectus hic error vero ab laboriosam aut officiis temporibus est optio exercitationem non! Laborum dolorum temporibus magni quo? Rerum dolorem facere vitae ullam eum, porro quam odit asperiores hic! Vel optio iusto non illo sint. Debitis ex molestiae dignissimos, quibusdam veritatis at architecto quam dolore, officiis quod nulla. Eos ipsum et dolore accusantium. Est harum fugit expedita perspiciatis dolores deserunt optio blanditiis, pariatur ea obcaecati animi voluptate, quibusdam eos nobis ipsum assumenda voluptatum doloribus sunt. Aliquam, iste voluptatum? Similique, eligendi eius. Maxime consectetur quae quam animi deleniti, voluptates nemo reprehenderit. Odio, error! Nulla temporibus quidem nostrum nesciunt similique sunt ducimus voluptas sit aspernatur, explicabo facilis tempore ad. Facere. \n\n{{ author }}'
         }
       }
 
@@ -161,7 +161,6 @@
             var email = ''
             email += 'To: ' + this.gmailTo + "\r\n"
             email += 'Subject: Project Kemono Friends' + '\r\n'
-            email += 'Content-Type: text/html; charset=utf-8' + '\r\n'
             email += "\r\n" + this.mailContent
 
             gapi.client.gmail.users.messages.send({
