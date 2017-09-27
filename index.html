@@ -4,6 +4,7 @@
     <title>Gmail API Quickstart</title>
     <meta charset="utf-8" />
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js" integrity="sha256-jpW4gXAhFvqGDD5B7366rIPD7PDbAmqq4CO0ZnHbdM4=" crossorigin="anonymous"></script>
@@ -41,11 +42,51 @@
 
           <button class="btn btn-warning" @click.prevent="sendGmail">寄出</button>
         </form>
+
+        <p>Localization: {{ $t('hello') }}</p>
+
+        <select v-model="locale">
+          <option value="en">English</option>
+          <option value="zh-TW">中文</option>
+          <option value="ja">日本語</option>
+        </select>
       </div>
     </div>
 
     <script type="text/javascript">
+      var messages = {
+        'zh-TW': {
+          hello: '你好，世界'
+        },
+        ja: {
+          hello: 'こんにちは、世界'
+        },
+        en: {
+          hello: 'Hello World'
+        }
+      }
+
+      function getLocale(locale) {
+        // get full list from https://stackoverflow.com/a/36042028
+        switch(locale) {
+          case 'zh-TW':
+          case 'zh-CN':
+          case 'zh-HK':
+          case 'zh-SG':
+            return 'zh-TW'
+          case 'ja':
+            return 'ja'
+          default:
+            return 'en'
+        }
+      }
+      var i18n = new VueI18n({
+        locale: 'en', // default locale
+        messages: messages
+      })
+
       var app = new Vue({
+        i18n: i18n,
         el: '#app',
         methods: {
           gmailAction() {
@@ -89,14 +130,18 @@
             });
           }
         },
-        computed: {
+        watch: {
+          locale(newLocale) {
+            i18n.locale = getLocale(newLocale)
+          }
         },
         data: {
           gmailFormShow: false,
           mailToFormShow: false,
           isSignedIn: false,
           gmailTo: '',
-          gmailMessage: "Hello world from Japari park"
+          gmailMessage: "Hello world from Japari park",
+          locale: getLocale(navigator.language)
         }
       })
 
