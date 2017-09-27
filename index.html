@@ -67,11 +67,11 @@
           },
 
           updateSigninStatus(status) {
-            console.log('update signin status = ', status)
             this.isSignedIn = status
           },
 
           sendGmail() {
+            // base on https://github.com/sitepoint-editors/gmail-api-javascript-example
             var email = ''
             email += 'To: ' + this.gmailTo + "\r\n"
             email += 'Subject: Project Kemono Friends' + "\r\n"
@@ -83,7 +83,9 @@
                 'raw': window.btoa(email).replace(/\+/g, '-').replace(/\//g, '_')
               }
             }).then(function(response) {
-              console.log(response)
+              if (response.status !== 200) {
+                // show failed message here
+              }
             });
           }
         },
