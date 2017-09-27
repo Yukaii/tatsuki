@@ -135,7 +135,7 @@
         }
       }
       var i18n = new VueI18n({
-        locale: 'en', // default locale
+        locale: getLocale(navigator.language), // default locale
         fallbackLocale: 'en',
         messages: messages
       })
