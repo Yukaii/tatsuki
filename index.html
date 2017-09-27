@@ -41,11 +41,18 @@
         </button>
 
         <form class="form">
-          <button class="btn btn-primary" @click.prevent="handleLoginClick" v-if="!isSignedIn">
-            按這裡登入 Gmail
-          </button>
 
-          <button class="btn btn-danger" @click.prevent="handleLogoutClick" v-if="isSignedIn">登出</button>
+          <h4>
+            {{ useGmail ? 'Gmail 模式' : '連結模式' }}
+          </h4>
+
+          <div v-if="useGmail">
+            <button class="btn btn-primary" @click.prevent="handleLoginClick" v-if="!isSignedIn">
+              按這裡登入 Gmail
+            </button>
+
+            <button class="btn btn-danger" @click.prevent="handleLogoutClick" v-if="isSignedIn">登出</button>
+          </div>
 
           <div class="form-group">
             <label>你是誰</label>
@@ -54,12 +61,15 @@
 
           <div class="form-group">
             <label>收件人</label>
-            <input type="text" v-model="gmailTo">
+            <input type="text" v-model="mailTo">
           </div>
 
           <div class="letter markdown-body">{{ mailContent }}</div>
 
-          <button class="btn btn-warning" @click.prevent="sendGmail">寄出</button>
+          <button class="btn btn-warning" @click.prevent="sendGmail" v-if="useGmail">寄出</button>
+          <a :href="mailLink" v-else class="btn btn-warning">
+            寄出
+          </a>
         </form>
 
         <p>Localization: {{ $t('hello') }}</p>
@@ -135,13 +145,11 @@
         el: '#app',
         methods: {
           gmailAction() {
-            this.mailToFormShow = false
-            this.gmailFormShow = true
+            this.useGmail = true
           },
 
           nonGmailAction() {
-            this.mailToFormShow = true
-            this.gmailFormShow = false
+            this.useGmail = false
           },
 
           handleLoginClick() {
@@ -159,7 +167,7 @@
           sendGmail() {
             // base on https://github.com/sitepoint-editors/gmail-api-javascript-example
             var email = ''
-            email += 'To: ' + this.gmailTo + "\r\n"
+            email += 'To: ' + this.mailTo + "\r\n"
             email += 'Subject: Project Kemono Friends' + '\r\n'
             email += "\r\n" + this.mailContent
 
@@ -178,6 +186,13 @@
         computed: {
           mailContent() {
             return Mustache.render(this.$t('mail'), { author: this.author })
+          },
+          mailLink() {
+            var link = ''
+            link += 'subject=' + encodeURIComponent('Project Kemono Friends')
+            link += '&body=' + encodeURIComponent(this.mailContent)
+
+            return  'mailto:' + this.mailTo + '?' + link
           }
         },
         watch: {
@@ -186,10 +201,9 @@
           }
         },
         data: {
-          gmailFormShow: false,
-          mailToFormShow: false,
+          useGmail: false,
           isSignedIn: false,
-          gmailTo: '',
+          mailTo: '',
           author: '我是誰',
           locale: getLocale(navigator.language)
         }
