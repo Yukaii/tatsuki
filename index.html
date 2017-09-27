@@ -10,9 +10,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js" integrity="sha256-jpW4gXAhFvqGDD5B7366rIPD7PDbAmqq4CO0ZnHbdM4=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/2.8.0/css/flag-icon.min.css" integrity="sha256-EQjZwW4ljrt9dsonbyX+si6kbxgkVde47Ty9FQehnUg=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js" integrity="sha256-iaqfO5ue0VbSGcEiQn+OeXxnxAMK2+QgHXIDA5bWtGI=" crossorigin="anonymous"></script>
   </head>
-  <body>
+  <style>
+    #app {
+      padding: 3rem;
+      height: 100%;
+    }
 
+    .letter {
+      border-radius: 5px;
+      margin: 1em 0;
+      background-image: url(./images/linedpaper.png);
+      background-repeat: repeat;
+      padding: 2em 1em .5em;
+    }
+  </style>
+  <body>
     <div id="app">
       <div class="container">
         <h1>Gmail API 測試</h1>
@@ -25,7 +39,7 @@
           我沒有 Gmail
         </button>
 
-        <form class="form" v-if="gmailFormShow">
+        <form class="form">
           <button class="btn btn-primary" @click.prevent="handleLoginClick" v-if="!isSignedIn">
             按這裡登入 Gmail
           </button>
@@ -33,12 +47,16 @@
           <button class="btn btn-danger" @click.prevent="handleLogoutClick" v-if="isSignedIn">登出</button>
 
           <div class="form-group">
-            <label >收件人</label>
-            <input type="text" v-model="gmailTo">
+            <label>你是誰</label>
+            <input type="text" v-model="author">
           </div>
 
           <div class="form-group">
-            <textarea cols="30" rows="10" class="form-control" v-model="gmailMessage"></textarea>
+            <label>收件人</label>
+            <input type="text" v-model="gmailTo">
+          </div>
+
+          <div class="letter markdown-body" v-html="mailContent">
           </div>
 
           <button class="btn btn-warning" @click.prevent="sendGmail">寄出</button>
@@ -69,6 +87,10 @@
     </div>
 
     <script type="text/javascript">
+      // from http://www.webtoolkit.info/javascript-base64.html
+      var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(r){var t,e,o,a,h,n,c,d="",C=0;for(r=Base64._utf8_encode(r);C<r.length;)a=(t=r.charCodeAt(C++))>>2,h=(3&t)<<4|(e=r.charCodeAt(C++))>>4,n=(15&e)<<2|(o=r.charCodeAt(C++))>>6,c=63&o,isNaN(e)?n=c=64:isNaN(o)&&(c=64),d=d+this._keyStr.charAt(a)+this._keyStr.charAt(h)+this._keyStr.charAt(n)+this._keyStr.charAt(c);return d},decode:function(r){var t,e,o,a,h,n,c="",d=0;for(r=r.replace(/[^A-Za-z0-9\+\/\=]/g,"");d<r.length;)t=this._keyStr.indexOf(r.charAt(d++))<<2|(a=this._keyStr.indexOf(r.charAt(d++)))>>4,e=(15&a)<<4|(h=this._keyStr.indexOf(r.charAt(d++)))>>2,o=(3&h)<<6|(n=this._keyStr.indexOf(r.charAt(d++))),c+=String.fromCharCode(t),64!=h&&(c+=String.fromCharCode(e)),64!=n&&(c+=String.fromCharCode(o));return c=Base64._utf8_decode(c)},_utf8_encode:function(r){r=r.replace(/\r\n/g,"\n");for(var t="",e=0;e<r.length;e++){var o=r.charCodeAt(e);o<128?t+=String.fromCharCode(o):o>127&&o<2048?(t+=String.fromCharCode(o>>6|192),t+=String.fromCharCode(63&o|128)):(t+=String.fromCharCode(o>>12|224),t+=String.fromCharCode(o>>6&63|128),t+=String.fromCharCode(63&o|128))}return t},_utf8_decode:function(r){for(var t="",e=0,o=c1=c2=0;e<r.length;)(o=r.charCodeAt(e))<128?(t+=String.fromCharCode(o),e++):o>191&&o<224?(c2=r.charCodeAt(e+1),t+=String.fromCharCode((31&o)<<6|63&c2),e+=2):(c2=r.charCodeAt(e+1),c3=r.charCodeAt(e+2),t+=String.fromCharCode((15&o)<<12|(63&c2)<<6|63&c3),e+=3);return t}};
+    </script>
+    <script type="text/javascript">
       var messages = {
         'zh-TW': {
           hello: '你好，世界'
@@ -77,7 +99,8 @@
           hello: 'こんにちは、世界'
         },
         en: {
-          hello: 'Hello World'
+          hello: 'Hello World',
+          mail: '<h4>Welcome to Japari Park</h4> <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit ut tenetur accusamus. Dolorum repellat officia porro, deleniti sunt odio esse itaque reiciendis vitae. Ex dolores ipsa repudiandae veniam, temporibus quod. Ex doloribus inventore tenetur doloremque eveniet eius fugiat, placeat nam praesentium suscipit delectus hic error vero ab laboriosam aut officiis temporibus est optio exercitationem non! Laborum dolorum temporibus magni quo? Rerum dolorem facere vitae ullam eum, porro quam odit asperiores hic! Vel optio iusto non illo sint. Debitis ex molestiae dignissimos, quibusdam veritatis at architecto quam dolore, officiis quod nulla. Eos ipsum et dolore accusantium. Est harum fugit expedita perspiciatis dolores deserunt optio blanditiis, pariatur ea obcaecati animi voluptate, quibusdam eos nobis ipsum assumenda voluptatum doloribus sunt. Aliquam, iste voluptatum? Similique, eligendi eius. Maxime consectetur quae quam animi deleniti, voluptates nemo reprehenderit. Odio, error! Nulla temporibus quidem nostrum nesciunt similique sunt ducimus voluptas sit aspernatur, explicabo facilis tempore ad. Facere. </p> {{ author }}'
         }
       }
 
@@ -130,19 +153,25 @@
             // base on https://github.com/sitepoint-editors/gmail-api-javascript-example
             var email = ''
             email += 'To: ' + this.gmailTo + "\r\n"
-            email += 'Subject: Project Kemono Friends' + "\r\n"
-            email += "\r\n" + this.gmailMessage
+            email += 'Subject: Project Kemono Friends' + '\r\n'
+            email += 'Content-Type: text/html; charset=utf-8' + '\r\n'
+            email += "\r\n" + this.mailContent
 
             gapi.client.gmail.users.messages.send({
               'userId': 'me',
               'resource': {
-                'raw': window.btoa(email).replace(/\+/g, '-').replace(/\//g, '_')
+                'raw': Base64.encode(email).replace(/\+/g, '-').replace(/\//g, '_')
               }
             }).then(function(response) {
               if (response.status !== 200) {
                 // show failed message here
               }
             });
+          }
+        },
+        computed: {
+          mailContent() {
+            return Mustache.render(this.$t('mail'), { author: this.author })
           }
         },
         watch: {
@@ -155,7 +184,7 @@
           mailToFormShow: false,
           isSignedIn: false,
           gmailTo: '',
-          gmailMessage: "Hello world from Japari park",
+          author: '我是誰',
           locale: getLocale(navigator.language)
         }
       })
